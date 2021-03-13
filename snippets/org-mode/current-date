@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: current date
+# key: cd
+# --
+`(format-time-string "%F %H:%M:%S %z")`

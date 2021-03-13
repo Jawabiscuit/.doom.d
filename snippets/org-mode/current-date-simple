@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: current date simple
+# key: <day
+# --
+`(format-time-string "%F")`

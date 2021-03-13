@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: image-properties
+# key: <imp
+# --
+#+name: ${1:name}
+#+caption: ${2:caption}
+#+attr_html: :alt ${3:$2} :title ${4:$2} :align center
+#+attr_html: :width 200/250/300/400/500/600px
+#+attr_org: :width 200/250/300/400/500/600px
+[[file:${5:image_path}]]
+$0

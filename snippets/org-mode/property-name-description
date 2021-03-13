@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: property-name-description
+# key: <nd
+# --
+#+description: ${1:<description>}
+#+name: $0

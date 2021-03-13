@@ -1,0 +1,43 @@
+# -*- mode: snippet -*-
+# name: org-babel-header-settings
+# key: <ob
+# --
+:SETTINGS:
+#+title: ${1:`(replace-regexp-in-string "-" " " (replace-regexp-in-string (format "%s-" (format-time-string "%F")) "" (capitalize (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))))`}
+#+subtitle: 
+#+description:
+#+author: `user-full-name`
+#+email: `user-mail-address`
+#+date: `(format-time-string "%F %H:%M:%S %z")`
+#+options: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+options: author:t c:nil creator:comment d:(not LOGBOOK) date:t e:t
+#+options: email:nil f:t inline:t num:nil p:nil pri:nil stat:t tags:t
+#+options: tasks:nil tex:t timestamp:t title:nil toc:nil todo:t |:t
+#+options: html-postamble:nil
+#+exclude_tags: noexport
+#+export_file_name: ${2:../_posts/`(downcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}
+#+language: en
+# # By default I do not want that source code blocks are evaluated on export.
+# # I want to evaluate them interactively and retain the original results.
+#+property: header-args :eval never-export :results output :session `(replace-regexp-in-string (format "%s-" (format-time-string "%F")) "" (downcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name)))))`-session
+#+startup: content indent hidestars hideblocks
+#+keywords: ${3:emacs}
+#+tags: ${4:org-mode}
+# # Original start of this document
+# #+date: <`(format-time-string "%F")`>
+# #+creator: Emacs `(format "%s" emacs-version)` `(format "(Org mode %s)" (org-version))`
+@@html:---
+layout: post
+title: $1
+date: `(format-time-string "%F %H:%M:%S %z")`
+category: $3
+tags: $4
+author: `(user-full-name)`
+---
+@@
+:END:
+
+* $1
+
+$0
+

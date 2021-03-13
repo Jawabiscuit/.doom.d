@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: properties-with-headerargs
+# key: <ph
+# --
+:PROPERTIES:
+:created_time: `(format-time-string "[%Y-%m-%d %H:%M:%S %z]")`
+:header-args: ${1::results output} ${2::session cmd-chain-session}
+:END:
