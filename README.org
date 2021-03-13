@@ -1,9 +1,9 @@
-#+title: My emacs doom configuration
+#+title: My Emacs Doom Configuration
 #+author: Jonas Avrin
 #+email: jonas@cghijinks.com
 #+language: en
 #+startup: inlineimages
-#+property: header-args :tangle yes :cache yes :results silent :padline no
+#+property: header-args :tangle config.el :cache yes :results silent :padline no
 
 #+begin_src elisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
@@ -11,6 +11,7 @@
 
 * Table of Contents :TOC_2_gh:
 - [[#doom-config-help][Doom Config Help]]
+- [[#issues][Issues]]
 - [[#personal-information][Personal Information]]
   - [[#set-full-name][Set full name]]
   - [[#set-email-address][Set email address]]
@@ -37,6 +38,19 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+#+end_src
+
+* Issues
+
+Alternative to using =:config literate= in ~init.el~
+For some reason, I have to comment it out for =doom sync= to rebuild packages on Windows.
+
+#+begin_src elisp
+(add-hook! 'after-save-hook
+  (when (and
+         (string= (file-name-directory buffer-file-name) (expand-file-name doom-private-dir))
+         (string= (file-name-extension buffer-file-name) "org"))
+    (org-babel-tangle)))
 #+end_src
 
 

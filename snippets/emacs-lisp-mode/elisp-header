@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: elisp-header
+# uuid:
+# key: eh
+# condition: t
+# --
+;; -*- lexical-binding: t -*-
+;;; \`${1:`(file-name-nondirectory (buffer-file-name))`}\' --- Summary: ${2:summary}
+;;; Commentary:
+;;; Code:

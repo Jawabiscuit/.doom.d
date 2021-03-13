@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: elisp-footer
+# key: ef
+# condition: true
+# --
+(provide '${1:`(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`})
+;;; $1.el ends here
