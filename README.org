@@ -16,7 +16,7 @@
   - [[#set-full-name][Set full name]]
   - [[#set-email-address][Set email address]]
 - [[#doom-core][Doom Core]]
-  - [[#core][Core]]
+  - [[#core][core]]
   - [[#langorg][lang/org]]
 
 * Doom Config Help
@@ -39,6 +39,7 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 #+end_src
+
 
 * Issues
 
@@ -69,7 +70,7 @@ For some reason, I have to comment it out for =doom sync= to rebuild packages on
 
 * Doom Core
 
-** [[doom:core/core.el][Core]]
+** [[doom:core/core.el][core]]
 
 *** Do not create lockfiles for files being edited
 #+begin_src elisp
@@ -119,12 +120,106 @@ and add the to the cache.
   (setq projectile-project-search-path '("D:/git")))
 #+end_src
 
+*** Use ~] SPC~ and ~[ SPC~ to insert newlines above and below
+ Similar to [[github:tpope/vim-unimpaired][vim-unimpaired]]
+
+#+BEGIN_SRC emacs-lisp
+(map!
+ (:after evil
+   :m  "] SPC" #'evil-motion-insert-newline-below
+   :m  "[ SPC" #'evil-motion-insert-newline-above))
+#+END_SRC
+
 ** [[doom-modules:lang/org/][lang/org]]
 
-*** Default directory
+*** Default org directory
 
 #+begin_src elisp
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+#+end_src
+
+*** Sane Defaults
+
++ Hide ~~/=/_~ emphasis markers
++ Allow shift selection
+
+#+begin_src elisp
+(after! org
+  (setq org-hide-emphasis-markers t
+        org-support-shift-select t
+        evil-org-retain-visual-state-on-shift t))
+(map! (:localleader
+        (:after evil-org
+          :map evil-org-mode-map
+          "/" #'counsel-org-goto)))
+#+end_src
+
+*** Collapsed heading indicator character
+
+#+begin_src elisp
+(setq org-ellipsis " ▼ ")
+#+end_src
+
+*** Pretty Bullets
+
+Pretty bullets :) instead of ugly asterisks :(
+
+#+begin_src elisp
+(use-package! org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :config (setq org-bullets-bullet-list '("+")))
+#+end_src
+
+*** Default bullet character
+
+#+begin_src elisp
+(after! org-bullets
+  ())
+#+end_src
+
+*** Notes filename
+
+#+begin_src elisp
+(after! org
+  (setq org-default-notes-file (expand-file-name "notes.org" org-directory)))
+#+end_src
+
+*** Maximum number of files for refile
+
+#+begin_src elisp
+(after! org
+  (setq
+   org-refile-targets '((nil :maxlevel . 5)
+                        (org-agenda-files :maxlevel . 5))))
+#+end_src
+
+*** Strike through done headlines
+
+#+begin_src elisp
+(setq org-fontify-done-headline t)
+(custom-set-faces
+ '(org-done ((t (
+                 :weight bold
+                 :strike-through t))))
+ '(org-headline-done
+   ((((class color) (min-colors 16) (background dark))
+     (:strike-through t)))))
+#+end_src
+
+*** TODO Capture Templates
+
+#+begin_src elisp :tangle no
+(after! org
+  :config
+  (setq +org-dir org-directory
+        org-default-notes-file (expand-file-name "notes.org" org-directory)
+        org-capture-templates
+        '(("c" "Code Task" entry (file+headline org-default-notes-file "Coding Tasks")
+           "* TODO %?\n  Entered on: %U - %a\n")
+          ("t" "Task" entry (file+headline org-default-notes-file "Tasks")
+           "* TODO %?\n  Entered on: %U")
+          ("n" "Note" entry (file+olp+datetree org-default-notes-file)
+           "* %?\n\n"))))
 #+end_src
