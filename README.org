@@ -110,6 +110,15 @@ For some reason, I have to comment it out for =doom sync= to rebuild packages on
 (setq doom-theme 'doom-one)
 #+end_src
 
+*** Projectile
+When running projectile for the first time, execute =SPC p D= to discover projects
+and add the to the cache.
+
+#+begin_src elisp
+(after! projectile
+  (setq projectile-project-search-path '("D:/git")))
+#+end_src
+
 ** [[doom-modules:lang/org/][lang/org]]
 
 *** Default directory
