@@ -18,6 +18,7 @@
 - [[#doom-core][Doom Core]]
   - [[#core][core]]
   - [[#langorg][lang/org]]
+  - [[#langpython][lang/python]]
 
 * Doom Config Help
 
@@ -222,4 +223,34 @@ Pretty bullets :) instead of ugly asterisks :(
            "* TODO %?\n  Entered on: %U")
           ("n" "Note" entry (file+olp+datetree org-default-notes-file)
            "* %?\n\n"))))
+#+end_src
+
+** [[doom-modules:lang/python][lang/python]]
+
+*** LOOP Lsp mode
+
+lsp-mode is working, not so thrilled with python 2 performance but works good enough in a python 3 environment.
+
+Configs for inspiration: [[https://github.com/nishikant/emacs/blob/4ea892d6555a57ee725e16fe7abd3d7942252b9a/init.org][nishikant/emacs]]
+
+#+begin_src elisp :tangle no
+(use-package! lsp-mode
+  :hook ((lsp-mode . lsp-enable-which-key-integration)
+         (before-save . lsp-organize-imports)
+         (python-mode . lsp-deferred))
+  :commands (lsp lsp-deferred)
+  :config
+  (setq gc-cons-threshold 50000000 ;; 50MB threshold
+        read-process-output-max (* 1024 1024) ;; 1MB
+        lsp-completion-provider :capf ;; Company backend
+        lsp-idle-delay 0.500 ;; Be more idle
+        lsp-print-performance t ;; Monitor performance
+        ;; lsp-pyls-plugins-pydocstyle-enabled nil ;; Disable pydocstyle
+        ;; lsp-modeline-diagnostics-scope :workspace
+        ;; lsp-headerline-breadcrumb-enable t
+        ;; lsp-enable-snippet t
+        ;; lsp-file-watch-threshold 4000
+        ;; lsp-headerline-breadcrumb-mode t
+        ;; lsp-semantic-highlighting 'immediate
+  ))
 #+end_src
