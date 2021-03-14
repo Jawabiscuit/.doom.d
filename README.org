@@ -225,6 +225,7 @@ Pretty bullets :) instead of ugly asterisks :(
            "* %?\n\n"))))
 #+end_src
 
+
 ** [[doom-modules:lang/python][lang/python]]
 
 *** LOOP Lsp mode
