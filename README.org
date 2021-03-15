@@ -132,6 +132,24 @@ and add the to the cache.
 #+END_SRC
 
 
+*** Keybindings
+
+Prefix key for user commands.
+
+#+begin_src elisp
+(defvar jawa/bind-user-key "C-c"
+  "The prefix key, for major-mode specific commands.")
+#+end_src
+
+Create definer with general.
+Copy region, but don't kill it.
+
+#+begin_src elisp
+(unless (featurep! :editor evil)
+  (general-create-definer jawa/bind-user :prefix jawa/bind-user-key)
+  (jawa/bind-user "k" 'copy-region-as-kill))
+#+end_src
+
 ** [[doom-modules:lang/org/][lang/org]]
 
 *** Default org directory
@@ -409,7 +427,6 @@ Make clock history persist across sessions
   ;; you will be prompted about what to do with it
   (setq org-clock-persist 'history)
   (org-clock-persistence-insinuate)
-
 #+end_src
 
 
