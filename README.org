@@ -131,6 +131,7 @@ and add the to the cache.
    :m  "[ SPC" #'evil-motion-insert-newline-above))
 #+END_SRC
 
+
 ** [[doom-modules:lang/org/][lang/org]]
 
 *** Default org directory
@@ -160,24 +161,7 @@ and add the to the cache.
 *** Collapsed heading indicator character
 
 #+begin_src elisp
-(setq org-ellipsis " ▼ ")
-#+end_src
-
-*** Pretty Bullets
-
-Pretty bullets :) instead of ugly asterisks :(
-
-#+begin_src elisp
-(use-package! org-bullets
-  :hook (org-mode . org-bullets-mode)
-  :config (setq org-bullets-bullet-list '("+")))
-#+end_src
-
-*** Default bullet character
-
-#+begin_src elisp
-(after! org-bullets
-  ())
+(setq org-ellipsis " ◀ ")
 #+end_src
 
 *** Notes filename
