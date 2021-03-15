@@ -193,26 +193,229 @@ and add the to the cache.
      (:strike-through t)))))
 #+end_src
 
-*** TODO Capture Templates
+*** Org GTD
 
-#+begin_src elisp :tangle no
+Toggle header TODO to DONE status when checkboxes are all ticked, otherwise toggle to TODO status
+
+#+begin_src elisp
 (after! org
-  :config
-  (setq +org-dir org-directory
-        org-default-notes-file (expand-file-name "notes.org" org-directory)
-        org-capture-templates
-        '(("c" "Code Task" entry (file+headline org-default-notes-file "Coding Tasks")
-           "* TODO %?\n  Entered on: %U - %a\n")
-          ("t" "Task" entry (file+headline org-default-notes-file "Tasks")
-           "* TODO %?\n  Entered on: %U")
-          ("n" "Note" entry (file+olp+datetree org-default-notes-file)
-           "* %?\n\n"))))
+  (defun jawa/org-checkbox-todo ()
+    "Switch header TODO state to DONE when all checkboxes are ticked, to TODO otherwise"
+    (let ((todo-state (org-get-todo-state)) beg end)
+      (unless (not todo-state)
+        (save-excursion
+      (org-back-to-heading t)
+      (setq beg (point))
+      (end-of-line)
+      (setq end (point))
+      (goto-char beg)
+      (if (re-search-forward "\\[\\([0-9]*%\\)\\]\\|\\[\\([0-9]*\\)/\\([0-9]*\\)\\]"
+                     end t)
+          (if (match-end 1)
+          (if (equal (match-string 1) "100%")
+              (unless (string-equal todo-state "DONE")
+                (org-todo 'done))
+            (unless (string-equal todo-state "TODO")
+              (org-todo 'todo)))
+            (if (and (> (match-end 2) (match-beginning 2))
+                 (equal (match-string 2) (match-string 3)))
+            (unless (string-equal todo-state "DONE")
+              (org-todo 'done))
+          (unless (string-equal todo-state "TODO")
+            (org-todo 'todo)))))))))
+
+  (add-hook! 'org-checkbox-statistics-hook (jawa/org-checkbox-todo))
+#+end_src
+
+Org emphasis markers toggle function
+
+#+begin_src elisp
+  ;; Toggle display of special markdown formatting characters in org buffers
+  (defun jawa/toggle-org-emphasis-markers (&optional arg)
+    (interactive)
+    "Toggle emphasis markers"
+    (setq org-hide-emphasis-markers
+          (if (null arg)
+              (not org-hide-emphasis-markers)
+            arg)))
+#+end_src
+
+Org todo keywords
+
+#+begin_src elisp
+  ;; GTD TODO keywords and hide logs
+  (setq org-todo-keywords
+        '((sequence
+           "TODO"
+           "ACTION"
+           "IN-PROGRESS"
+           "INCUBATE"
+           "DEFERRED(@d)"
+           "WAITING(w@)"
+           "|"
+           "DONE(@o)"
+           "DELEGATED(l@)"
+           "ARCHIVE"
+           "CANCELLED")
+          (sequence
+           "[ ](T)"   ; A task that needs doing
+           "[-](S)"   ; Task is in progress
+           "[?](W)"   ; Task is being held up or paused
+           "|"
+           "[X](D)")  ; Task was completed
+          (sequence
+           "|"
+           "OKAY(o)"
+           "YES(y)"
+           "NO(n)")))
+
+  (setq org-log-into-drawer nil)
+#+end_src
+
+My system for fast and consistent tag selection.
+
+#+begin_src elisp
+  ;; GTD fast tag selection
+  (setq org-tag-persistent-alist
+        '(("gtd" . ?G)
+          (:startgroup)
+          ("engage" . ?N)  ;; Day to day engagement
+          ("review" . ?R)  ;; Periodic review
+          ("someday" . ?S) ;; Someday maybe project list
+          (:endgroup)
+
+          ;; Three Models for making action choices
+          ;; #1 - The Four-Criteria Model for choosing actions in the moment
+
+          ("context" . ?C)
+
+          ;; 1 - Context : are you in the right space to do this action?
+
+          (:startgroup)
+          ("@home" . ?h) ("@work" . ?w) ("@anywhere" . ?a) ("@mobile")
+          (:endgroup)
+
+          ("sub_context" . ?X)
+          (:startgroup)
+          ("office" . ?1) ("outside" . ?2) ("garage" . ?3)
+          ("kitchen" . ?4) ("bathroom" . ?5) ("storage" . ?6)
+          (:endgroup)
+
+          ("status" . ?B)
+          (:startgroup)
+          ;; ("status" . ?X))
+          ("online". ?o) ("offline" . ?O)
+          (:endgroup)
+
+          ("type" . ?E)
+          (:startgroup)
+          ("meeting" . ?m) ("discussion" . ?t) ("call" . ?c)
+          (:endgroup)
+
+          ;; 2 - Time Available : do you have enough time to complete it?
+
+          ("time" . ?T)
+          (:startgroup)
+          ("5m_or_less" . ?q)  ; quick
+          ("30m_or_less" . ?l)  ; less quick
+          ("30m_or_more" . ?s)  ; slow
+          (:endgroup)
+
+          ;; 3 - Energy available : are you alert enough to do this?
+
+          ("intensity" . ?I)
+          (:startgroup)
+          ("high" . ?9)
+          ("low" . ?0)
+          (:endgroup)
+
+          ;; 4 - Priority : what's going to give you the highest payoff
+          ;; Track this using TODO priority
+
+          ;; #2 - The Threefold Model for Identifying Daily Work
+          ;; Doing predefined work - working from NAs and calendar
+          ;; Do work as it shows up
+          ;; Defining your work - clearing inboxes, processing meeting notes, breaking down new projects
+          ;; Do during periodic review meeting
+          ;; Track this using :review: tag
+
+          ;; #3 - The Six-Level Model for Reviewing Your Own Work
+          ;; There are 6 perspectives to define priorities
+
+          ;; 1 - Ground : current next actions list
+
+          ;; 2 - Projects : Current projects, they are generating the most NAs
+          ("project" . ?p)("area" . ?A)
+          (:startgroup)
+          ("clarify" . ?y)
+          ("brainstorm" .?b)
+          ("reference" . ?r)
+          ("research" . ?j)
+          (:endgroup)
+
+          ;; 3 - Areas of Focus and Accountability : key areas of life and work.
+
+          ;; TODO Identify areas of focus
+          ("aof" . ?k)
+          (:startgroup)
+          (:endgroup)
+
+          ;; 4 - Goals : one to two years from now
+
+          ;; TODO Identify goals
+          ("goals" . ?g)
+          (:startgroup)
+          (:endgroup)
+
+          ;; 5 - Vision : projecting three to five years out into bigger categories
+
+          ("vision" . ?v)
+          (:startgroup)
+          ("strategies" . ?z)
+          ("trends" . ?d)
+          ("career" . ?e)
+          (:endgroup)
+
+          ;; 6 - Purpose and principles : Big picture view
+
+          ;; TODO Identify principles
+          ("principles" . ?i)
+          (:startgroup)
+          (:endgroup))))
+#+end_src
+
+Setup columns so that tags are right justified.
+
+#+begin_src elisp
+  (setq org-columns-default-format "%60ITEM(Task) %10Effort(Effort){:} %PRIORITY %10CLOCKSUM(T Spent) %10CLOCKSUM_T(T Spent Today) %TAGS")
+  (setq org-global-properties
+        (quote (("Effort_ALL" . "0:05 0:10 0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 8:00")
+                ("SYTLE_ALL" . "habit"))))
+#+end_src
+
+Keep track of when Todo items where completed.
+
+#+begin_src elisp
+  (setq org-log-done 'time
+        ;; record a note along with the timestamp
+        ;; org-log-done 'note
+        )
+#+end_src
+
+Make clock history persist across sessions
+
+#+begin_src elisp
+  ;; the incomplete clock will be found (see Resolving idle time) and
+  ;; you will be prompted about what to do with it
+  (setq org-clock-persist 'history)
+  (org-clock-persistence-insinuate)
+
 #+end_src
 
 
 ** [[doom-modules:lang/python][lang/python]]
 
-*** LOOP Lsp mode
+*** IN-PROGRESS Lsp mode
 
 lsp-mode is working, not so thrilled with python 2 performance but works good enough in a python 3 environment.
 
@@ -237,5 +440,5 @@ Configs for inspiration: [[https://github.com/nishikant/emacs/blob/4ea892d6555a5
         ;; lsp-file-watch-threshold 4000
         ;; lsp-headerline-breadcrumb-mode t
         ;; lsp-semantic-highlighting 'immediate
-  ))
+))
 #+end_src
