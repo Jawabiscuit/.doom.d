@@ -49,5 +49,6 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! org-bullets)
-
+(package! mc-extras
+  :recipe (:host github :repo "knu/mc-extras.el")
+  :pin "053abc5...")

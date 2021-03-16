@@ -17,6 +17,7 @@
   - [[#set-email-address][Set email address]]
 - [[#doom-core][Doom Core]]
   - [[#core][core]]
+  - [[#editormultiple-cursors][editor/multiple-cursors]]
   - [[#langorg][lang/org]]
   - [[#langpython][lang/python]]
 
@@ -131,23 +132,31 @@ and add the to the cache.
    :m  "[ SPC" #'evil-motion-insert-newline-above))
 #+END_SRC
 
-
 *** Keybindings
 
-Prefix key for user commands.
-
-#+begin_src elisp
-(defvar jawa/bind-user-key "C-c"
-  "The prefix key, for major-mode specific commands.")
-#+end_src
-
-Create definer with general.
 Copy region, but don't kill it.
 
 #+begin_src elisp
 (unless (featurep! :editor evil)
-  (general-create-definer jawa/bind-user :prefix jawa/bind-user-key)
-  (jawa/bind-user "k" 'copy-region-as-kill))
+  (map! :leader "k" #'copy-region-as-kill))
+#+end_src
+
+Reload the buffer using contents on disk.
+
+#+begin_src elisp
+(unless (featurep! :editor evil)
+  (map! :leader "r" #'revert-buffer))
+#+end_src
+
+** [[doom-modules:editor/multiple-cursors/][editor/multiple-cursors]]
+
+*** MC Extras
+
+Remove blank lines. I'm doing this all the time when using mc.
+
+#+begin_src elisp
+(unless (featurep! :editor evil)
+  (map! :leader :desc "remove blank lines" "m C-l" #'mc/remove-cursors-on-blank-lines))
 #+end_src
 
 ** [[doom-modules:lang/org/][lang/org]]
