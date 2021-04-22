@@ -15,8 +15,12 @@
 - [[#personal-information][Personal Information]]
   - [[#set-full-name][Set full name]]
   - [[#set-email-address][Set email address]]
+- [[#core][Core]]
+  - [[#truncate-lines][Truncate lines]]
+  - [[#do-not-create-lockfiles-for-files-being-edited][Do not create lockfiles for files being edited]]
+  - [[#line-numbers][Line numbers]]
 - [[#doom-core][Doom Core]]
-  - [[#core][core]]
+  - [[#core-1][core]]
   - [[#editormultiple-cursors][editor/multiple-cursors]]
   - [[#langorg][lang/org]]
   - [[#langpython][lang/python]]
@@ -70,22 +74,37 @@ For some reason, I have to comment it out for =doom sync= to rebuild packages on
 #+END_SRC
 
 
-* Doom Core
+* Core
 
-** [[doom:core/core.el][core]]
+** Truncate lines
 
-*** Do not create lockfiles for files being edited
+Visually wrapping lines is usually undesirable as a default. After much experimentation,
+this is what I found works with Doom.
+
+#+begin_src elisp
+(after! org
+  (add-hook! org-mode (toggle-truncate-lines)))
+#+end_src
+
+** Do not create lockfiles for files being edited
+
 #+begin_src elisp
 (setq create-lockfiles nil)
 #+end_src
 
-*** Line numbers
+** Line numbers
+
+This determines the style of line numbers in effect. If set to `nil', line numbers are
+disabled. For relative line numbers, set this to `relative'.
 
 #+begin_src elisp
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 #+end_src
+
+
+* Doom Core
+
+** [[doom:core/core.el][core]]
 
 *** Doom font
 
@@ -114,6 +133,7 @@ For some reason, I have to comment it out for =doom sync= to rebuild packages on
 #+end_src
 
 *** Projectile
+
 When running projectile for the first time, execute =SPC p D= to discover projects
 and add the to the cache.
 
@@ -132,7 +152,7 @@ and add the to the cache.
    :m  "[ SPC" #'evil-motion-insert-newline-above))
 #+END_SRC
 
-*** Keybindings
+*** Keybindings for built-ins
 
 Copy region, but don't kill it.
 
@@ -411,7 +431,7 @@ My system for fast and consistent tag selection.
           ;; TODO Identify principles
           ("principles" . ?i)
           (:startgroup)
-          (:endgroup))))
+          (:endgroup)))
 #+end_src
 
 Keep track of when Todo items where completed.
@@ -429,7 +449,7 @@ Make clock history persist across sessions
   ;; the incomplete clock will be found (see Resolving idle time) and
   ;; you will be prompted about what to do with it
   (setq org-clock-persist 'history)
-  (org-clock-persistence-insinuate)
+  (org-clock-persistence-insinuate))
 #+end_src
 
 *** Tags
@@ -445,6 +465,79 @@ Setup columns so that tags are right justified.
                 ("SYTLE_ALL" . "habit")))))
 #+end_src
 
+*** Src Blocks
+
+Sensibly split the current Org block at point.
+
+#+begin_src elisp
+;; https://scripter.co/splitting-an-org-block-into-two/
+(defun modi/org-in-any-block-p ()
+  "Return non-nil if the point is in any Org block.
+
+The Org block can be *any*: src, example, verse, etc., even any
+Org Special block.
+
+This function is heavily adapted from `org-between-regexps-p'."
+  (save-match-data
+    (let ((pos (point))
+          (case-fold-search t)
+          (block-begin-re "^[[:blank:]]*#\\+begin_\\(?1:.+?\\)\\(?: .*\\)*$")
+          (limit-up (save-excursion (outline-previous-heading)))
+          (limit-down (save-excursion (outline-next-heading)))
+          beg end)
+      (save-excursion
+        ;; Point is on a block when on BLOCK-BEGIN-RE or if
+        ;; BLOCK-BEGIN-RE can be found before it...
+        (and (or (org-in-regexp block-begin-re)
+                 (re-search-backward block-begin-re limit-up :noerror))
+             (setq beg (match-beginning 0))
+             ;; ... and BLOCK-END-RE after it...
+             (let ((block-end-re (concat "^[[:blank:]]*#\\+end_"
+                                         (match-string-no-properties 1)
+                                         "\\( .*\\)*$")))
+               (goto-char (match-end 0))
+               (re-search-forward block-end-re limit-down :noerror))
+             (> (setq end (match-end 0)) pos)
+             ;; ... without another BLOCK-BEGIN-RE in-between.
+             (goto-char (match-beginning 0))
+             (not (re-search-backward block-begin-re (1+ beg) :noerror))
+             ;; Return value.
+             (cons beg end))))))
+
+(defun modi/org-split-block ()
+  "Sensibly split the current Org block at point."
+  (interactive)
+  (if (modi/org-in-any-block-p)
+      (save-match-data
+        (save-restriction
+          (widen)
+          (let ((case-fold-search t)
+                (at-bol (bolp))
+                block-start
+                block-end)
+            (save-excursion
+              (re-search-backward "^\\(?1:[[:blank:]]*#\\+begin_.+?\\)\\(?: .*\\)*$" nil nil 1)
+              (setq block-start (match-string-no-properties 0))
+              (setq block-end (replace-regexp-in-string
+                               "begin_" "end_" ;Replaces "begin_" with "end_", "BEGIN_" with "END_"
+                               (match-string-no-properties 1))))
+            ;; Go to the end of current line, if not at the BOL
+            (unless at-bol
+              (end-of-line 1))
+            (insert (concat (if at-bol "" "\n")
+                            block-end
+                            "\n\n"
+                            block-start
+                            (if at-bol "\n" "")))
+            ;; Go to the line before the inserted "#+begin_ .." line
+            (beginning-of-line (if at-bol -1 0)))))
+    (message "Point is not in an Org block")))
+#+end_src
+
+#+begin_src elisp
+(unless (featurep! :editor evil)
+  (map! :leader :desc "split org block" "b" #'modi/org-split-block))
+#+end_src
 
 ** [[doom-modules:lang/python][lang/python]]
 
