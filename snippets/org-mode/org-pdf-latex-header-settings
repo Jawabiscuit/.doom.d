@@ -1,0 +1,43 @@
+# -*- mode: snippet -*-
+# name: org-pdf-latex-header-settings
+# key: <op
+# --
+:SETTINGS:
+#+title: ${1:`(replace-regexp-in-string "-" " " (replace-regexp-in-string (format "%s-" (format-time-string "%F")) "" (capitalize (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))))`}
+#+subtitle:
+#+description:
+#+author: \href{mailto:user-email-address}{`user-full-name`}
+#+email: `user-mail-address`
+#+date: `(format-time-string "%F %H:%M")`
+#+options: ':nil *:t -:t ::t <:t H:1 \n:nil ^:nil arch:headline
+#+options: author:nil c:nil creator:comment d:nil date:t e:t
+#+options: email:nil f:t inline:t num:nil p:nil pri:nil stat:t tags:t
+#+options: tasks:nil tex:t timestamp:nil title:t toc:nil todo:t |:t
+#+options: html-postamble:nil
+#+exclude_tags: noexport
+#+export_file_name: ${2:../pdf/`(downcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`}
+#+language: en
+# # By default I do not want that source code blocks are evaluated on export.
+# # I want to evaluate them interactively and retain the original results.
+#+property: header-args :eval never-export :results output :session `(replace-regexp-in-string (format "%s-" (format-time-string "%F")) "" (downcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name)))))`-session
+#+startup: content indent hidestars hideblocks beamer
+#+keywords: ${3:emacs}
+#+tags: ${4:org-mode}
+#+latex_header: \usepackage{FiraSans}
+# Uncomment block below if exporting latex pdf
+#+latex_header: \renewcommand{\familydefault}{\sfdefault}
+#+latex_header: \usepackage{draculatheme}
+#+latex_header: \usepackage{fontawesome5}
+#+latex_header: \usepackage[margin=2cm]{geometry}
+#+latex_header: \usepackage{setspace}
+#+latex_header: \setstretch{0.90}
+# Uncomment line below if exporting latex pdf (beamer)
+# #+beamer_color_theme: magpie
+# # Original start of this document
+# #+date: <`(format-time-string "%F")`>
+# #+creator: Emacs `(format "%s" emacs-version)` `(format "(Org mode %s)" (org-version))`
+:END:
+
+* $1
+
+$0
