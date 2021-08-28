@@ -52,3 +52,6 @@
 (package! mc-extras
   :recipe (:host github :repo "knu/mc-extras.el")
   :pin "053abc5...")
+
+(package! etom
+  :recipe (:local-repo "site-lisp"))
